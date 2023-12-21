@@ -1,56 +1,41 @@
 import cv2
-import pickle
-import numpy as np
 import os
-video=cv2.VideoCapture(0)
-facedetect=cv2.CascadeClassifier('data/haarcascade_frontalface_default.xml')
 
-faces_data=[]
+def capture_and_save_image():
+    # Menghapus file representations_vgg_face.pkl jika exist
+    representations_file = "known_faces/representations_vgg_face.pkl"
+    if os.path.exists(representations_file):
+        os.remove(representations_file)
+        print(f"File {representations_file} telah dihapus.")
 
-i=0
+    # Meminta nama orang
+    nama_orang = input("Masukkan nama orang: ")
 
-name=input("Enter Your Name: ")
+    # Inisialisasi kamera
+    camera = cv2.VideoCapture(0)
 
-while True:
-    ret,frame=video.read()
-    gray=cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    faces=facedetect.detectMultiScale(gray, 1.3 ,5)
-    for (x,y,w,h) in faces:
-        crop_img=frame[y:y+h, x:x+w, :]
-        resized_img=cv2.resize(crop_img, (50,50))
-        if len(faces_data)<=100 and i%10==0:
-            faces_data.append(resized_img)
-        i=i+1
-        cv2.putText(frame, str(len(faces_data)), (50,50), cv2.FONT_HERSHEY_COMPLEX, 1, (50,50,255), 1)
-        cv2.rectangle(frame, (x,y), (x+w, y+h), (50,50,255), 1)
-    cv2.imshow("Frame",frame)
-    k=cv2.waitKey(1)
-    if k==ord('q') or len(faces_data)==100:
-        break
-video.release()
-cv2.destroyAllWindows()
+    # Membuka jendela kamera
+    while True:
+        ret, frame = camera.read()
+        cv2.imshow("Press 'c' to capture", frame)
 
-faces_data=np.asarray(faces_data)
-faces_data=faces_data.reshape(100, -1)
+        # Menunggu tombol 'c' ditekan
+        key = cv2.waitKey(1)
+        if key == ord('c'):
+            break
 
+    # Menyimpan gambar dengan nama yang sesuai di direktori known_faces
+    directory = "known_faces"
+    if not os.path.exists(directory):
+        os.makedirs(directory)
 
-if 'names.pkl' not in os.listdir('data/'):
-    names=[name]*100
-    with open('data/names.pkl', 'wb') as f:
-        pickle.dump(names, f)
-else:
-    with open('data/names.pkl', 'rb') as f:
-        names=pickle.load(f)
-    names=names+[name]*100
-    with open('data/names.pkl', 'wb') as f:
-        pickle.dump(names, f)
+    file_path = os.path.join(directory, f"{nama_orang}.jpg")
+    cv2.imwrite(file_path, frame)
+    print(f"Gambar telah disimpan di: {file_path}")
 
-if 'faces_data.pkl' not in os.listdir('data/'):
-    with open('data/faces_data.pkl', 'wb') as f:
-        pickle.dump(faces_data, f)
-else:
-    with open('data/faces_data.pkl', 'rb') as f:
-        faces=pickle.load(f)
-    faces=np.append(faces, faces_data, axis=0)
-    with open('data/faces_data.pkl', 'wb') as f:
-        pickle.dump(faces, f)
+    # Menutup jendela kamera
+    camera.release()
+    cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    capture_and_save_image()

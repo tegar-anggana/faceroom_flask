@@ -1,0 +1,21 @@
+> mkdir myproject
+> cd myproject
+> py -3 -m venv .venv
+
+> .venv\Scripts\activate
+
+> pip install Flask
+
+> flask --app cctv run
+
+> flask run --host=0.0.0.0
+
+> flask --app cctv run --host=0.0.0.0
+
+> flask --app flaskapp run --host=0.0.0.0
+
+> flask --app flaskapp_v3_tele run --host=0.0.0.0
+
+> flask --app flaskapp_final run --host=0.0.0.0
+
+> flask --app hello run
